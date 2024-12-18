@@ -81,7 +81,7 @@ const MapboxMap = () => {
       </div> */}
 
       {/* untitiled overlay container */}
-      <div className="absolute top-5 right-16  ">
+      {/* <div className="absolute top-5 right-16  ">
         <div className="w-72 bg-white rounded-t-md shadow-md p-4 relative z-10">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-[#284E93]">
@@ -136,7 +136,7 @@ const MapboxMap = () => {
             <span>Edit</span>
           </button>
         </div>
-      </div>
+      </div> */}
 
       {/* side button */}
       <div className="flex flex-col absolute top-5 right-5 ">
