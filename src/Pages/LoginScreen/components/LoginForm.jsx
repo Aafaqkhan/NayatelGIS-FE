@@ -8,7 +8,7 @@ import authApi from "../../../services/api/authApi";
 import profileApi from "../../../services/api/profileInfo";
 
 const LoginForm = () => {
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -21,10 +21,10 @@ const LoginForm = () => {
     event.preventDefault();
     setError("");
 
-    // Email validation
-    // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      setError("Email is required.");
+    // name validation
+    // const nameRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!name) {
+      setError("User Name is required.");
       return;
     }
 
@@ -32,15 +32,15 @@ const LoginForm = () => {
       setError("Password is required");
       return;
     }
-    // else if (!emailRegex.test(email)) {
-    //   setError("Please enter a valid email address.");
+    // else if (!nameRegex.test(name)) {
+    //   setError("Please enter a valid name address.");
     //   return;
     // }
 
     setLoading(true);
 
     try {
-      const response = await authApi.login(email, password);
+      const response = await authApi.login(name, password);
 
       if (response.status === 201) {
         console.log("Login successful!");
@@ -71,7 +71,7 @@ const LoginForm = () => {
 
   //   try {
   //     // Call the login API
-  //     const { token } = await authApi.login({ email, password });
+  //     const { token } = await authApi.login({ name, password });
 
   //     // Dispatch success action
   //     dispatch(loginSuccess(token));
@@ -102,16 +102,15 @@ const LoginForm = () => {
           Login
         </h2>
         <p className="text-gray-500 mb-8">
-          Enter your email below to login to your account.
+          Enter your name below to login to your account.
         </p>
 
         <div className="space-y-4">
           <InputField
-            label="Email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
+            label="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your name"
           />
           <InputField
             label="Password"

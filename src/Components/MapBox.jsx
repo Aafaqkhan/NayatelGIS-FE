@@ -12,7 +12,7 @@ const MapboxMap = ({ userId }) => {
   const [selectedPublic2, setSelectedPublic2] = useState("");
   const [layersPanelOpen, setlayersPanelOpen] = useState(false);
 
-  const [cityName, setCityName] = useState("karachi");
+  const [cityName, setCityName] = useState("Islamabad");
 
   const getCityNameFromApi = async () => {
     try {
