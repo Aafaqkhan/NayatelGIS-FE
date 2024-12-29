@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Map, { Marker, Popup } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import profileApi from "../services/api/profileInfo";
+import { deselectMenu } from "../store/menuSlice";
 
 const MapboxMap = ({ userId }) => {
+  const dispatch = useDispatch();
   const selectedMenu = useSelector((state) => state.menu.selectedMenu);
 
   const [selectedBase, setSelectedBase] = useState("Base");
@@ -13,6 +15,10 @@ const MapboxMap = ({ userId }) => {
   const [layersPanelOpen, setlayersPanelOpen] = useState(false);
 
   const [cityName, setCityName] = useState("Islamabad");
+
+  const handleCrossClick = () => {
+    dispatch(deselectMenu());
+  };
 
   const getCityNameFromApi = async () => {
     try {
@@ -164,7 +170,12 @@ const MapboxMap = ({ userId }) => {
                     className="h-5 w-5 object-contain"
                   />
                 </button>
-                <button className="text-[#284E93] font-bold text-lg">✕</button>
+                <button
+                  onClick={handleCrossClick}
+                  className="text-[#284E93] font-bold text-lg"
+                >
+                  ✕
+                </button>
               </div>
             </div>
 

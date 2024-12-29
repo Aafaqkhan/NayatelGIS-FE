@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import SearchBar from "./SearchBar";
 
-const MapHeader = () => {
+const MapHeader = ({ username, email }) => {
   const [activeTab, setActiveTab] = useState("View");
 
   const tabs = ["View", "Add", "Tools", "Help"];
@@ -42,8 +42,12 @@ const MapHeader = () => {
               className="w-8 h-8"
             />
             <div>
-              <p className="text-sm font-medium text-[#284E93]">John</p>
-              <p className="text-xs text-[#284E93]">john@example.com</p>
+              <p className="text-sm font-medium text-[#284E93]">
+                {username || "John"}
+              </p>
+              <p className="text-xs text-[#284E93]">
+                {email || "john@example.com"}
+              </p>
             </div>
           </div>
         </div>

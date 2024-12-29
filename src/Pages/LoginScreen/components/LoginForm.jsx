@@ -49,7 +49,16 @@ const LoginForm = () => {
 
         setUserId(response.data.id);
 
-        navigate("/dashboard", { state: { userId: response.data.id } });
+        console.log("useeeer emaaill ::", response.data.email);
+        console.log("useeeer namee ::", response.data.name);
+
+        navigate("/dashboard", {
+          state: {
+            userId: response.data.id,
+            username: response.data.username,
+            email: response.data.email,
+          },
+        });
       } else {
         console.log("Login failed:", response);
         alert("login failed");
