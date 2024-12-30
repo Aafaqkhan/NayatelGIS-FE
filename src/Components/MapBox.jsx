@@ -5,7 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import profileApi from "../services/api/profileInfo";
 import { deselectMenu } from "../store/menuSlice";
 
-const MapboxMap = ({ userId }) => {
+const MapboxMap = ({ cityName }) => {
   const dispatch = useDispatch();
   const selectedMenu = useSelector((state) => state.menu.selectedMenu);
 
@@ -14,34 +14,9 @@ const MapboxMap = ({ userId }) => {
   const [selectedPublic2, setSelectedPublic2] = useState("");
   const [layersPanelOpen, setlayersPanelOpen] = useState(false);
 
-  const [cityName, setCityName] = useState("Islamabad");
-
   const handleCrossClick = () => {
     dispatch(deselectMenu());
   };
-
-  const getCityNameFromApi = async () => {
-    try {
-      console.log("idddd :: ", userId);
-
-      const response = await profileApi.getProfileInfo(String(userId));
-      console.log("profile info res :: ", response.city.name);
-
-      // await axios.get("https://your-api-endpoint/profile-info"); // Replace with your API endpoint
-      const cityData = response.city;
-      if (cityData && cityData.name) {
-        setCityName(cityData.name); // Update the city name
-      } else {
-        console.error("City data not found in API response");
-      }
-    } catch (error) {
-      console.error("Error fetching city name from API:", error);
-    }
-  };
-
-  useEffect(() => {
-    getCityNameFromApi();
-  }, []);
 
   console.log("selectedMenu :::", selectedMenu);
 
@@ -75,7 +50,7 @@ const MapboxMap = ({ userId }) => {
 
   useEffect(() => {
     // Fetch coordinates when the city name changes
-    if (cityName) {
+    if (cityName || "Karachi") {
       getCityCoordinates(cityName);
     }
   }, [cityName, getCityCoordinates]);
@@ -281,14 +256,19 @@ const MapboxMap = ({ userId }) => {
             <h4 className="text-sm font-semibold mb-1">Base</h4>
             <label className="flex justify-between items-center text-[14px]">
               <span className="text-[12px]">Base</span>
-              <input
-                type="radio"
-                name="base"
-                value="Base"
-                checked={selectedBase === "Base"}
-                onChange={() => setSelectedBase("Base")}
-                className="form-radio appearance-none w-3 h-3 rounded-full bg-transparent border-[1px] border-white checked:bg-white/50 focus:outline-none"
-              />
+
+              <div className="flex items-center justify-center p-[1px] rounded-full border-[1px] border-white">
+                <input
+                  type="radio"
+                  name="base"
+                  value="Base"
+                  checked={selectedBase === "Base"}
+                  onChange={() => setSelectedBase("Base")}
+                  className="form-radio appearance-none w-2 h-2 rounded-full bg-transparent checked:bg-white focus:outline-none"
+
+                  // className="form-radio appearance-none w-2 h-2 rounded-full bg-transparent checked:bg-white focus:outline-none"
+                />
+              </div>
             </label>
           </div>
 
@@ -304,14 +284,16 @@ const MapboxMap = ({ userId }) => {
               >
                 <span>{option}</span>
 
-                <input
-                  type="radio"
-                  name="public1"
-                  value={option}
-                  checked={selectedPublic1 === option}
-                  onChange={() => setSelectedPublic1(option)}
-                  className="form-radio appearance-none w-3 h-3 rounded-full bg-transparent border-[1px] border-white checked:bg-white/50 focus:outline-none"
-                />
+                <div className="flex items-center justify-center p-[1px] rounded-full border-[1px] border-white">
+                  <input
+                    type="radio"
+                    name="public1"
+                    value={option}
+                    checked={selectedPublic1 === option}
+                    onChange={() => setSelectedPublic1(option)}
+                    className="form-radio appearance-none w-2 h-2 rounded-full bg-transparent checked:bg-white focus:outline-none"
+                  />
+                </div>
               </label>
             ))}
           </div>
@@ -328,14 +310,16 @@ const MapboxMap = ({ userId }) => {
               >
                 <span>{option}</span>
 
-                <input
-                  type="radio"
-                  name="public2"
-                  value={option}
-                  checked={selectedPublic2 === option}
-                  onChange={() => setSelectedPublic2(option)}
-                  className="form-radio appearance-none w-3 h-3 rounded-full bg-transparent border-[1px] border-white checked:bg-white/50 focus:outline-none"
-                />
+                <div className="flex items-center justify-center p-[1px] rounded-full border-[1px] border-white">
+                  <input
+                    type="radio"
+                    name="public2"
+                    value={option}
+                    checked={selectedPublic2 === option}
+                    onChange={() => setSelectedPublic2(option)}
+                    className="form-radio appearance-none w-2 h-2 rounded-full bg-transparent checked:bg-white focus:outline-none"
+                  />
+                </div>
               </label>
             ))}
           </div>
