@@ -1,36 +1,35 @@
 import React, { useState } from "react";
-import { ChevronDownIcon, ChevronRightIcon } from "@heroicons/react/16/solid";
+import { useDispatch, useSelector } from "react-redux";
+import { selectMenu } from "../../../store/menuSlice";
 
 const Drawer = () => {
-  const [expanded, setExpanded] = useState({});
+  const dispatch = useDispatch();
 
-  const toggleMenu = (menu) => {
-    setExpanded((prevState) => {
-      if (prevState[menu]) {
-        return {};
-      }
+  const selectedMenu = useSelector((state) => state.menu.selectedMenu);
 
-      return { [menu]: true };
-    });
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  const handleMenuClick = (item) => {
+    dispatch(selectMenu(item));
   };
 
   const menuItems = [
     {
       id: 1,
       icon: "src/assets/icons/overlay.png",
-      title: "Untitled overlay",
+      title: "Untitled overlay 1",
       subItems: [],
     },
     {
       id: 2,
       icon: "src/assets/icons/overlay.png",
-      title: "Untitled overlay",
+      title: "Untitled overlay 2",
       subItems: ["Employees", "Users", "Departments, Roles and Permission"],
     },
     {
       id: 3,
       icon: "src/assets/icons/overlay.png",
-      title: "Untitled overlay",
+      title: "Untitled overlay 3",
       subItems: ["Global", "Operator Areas"],
     },
     {
@@ -102,32 +101,35 @@ const Drawer = () => {
           <li
             key={item.id}
             className={`pl-1 pr-1 ml-2 mr-2 rounded-md  ${
-              expanded[item.id] ? "bg-[#284E93]" : ""
+              selectedMenu?.id === item.id ? "bg-[#284E93]" : ""
             }`}
           >
             <div
               className={`flex items-center cursor-pointer p-1 mb-1 rounded ${
-                expanded[item.id] ? "" : "hover:bg-blue-100"
+                selectedMenu?.id === item.id ? "" : "hover:bg-blue-100"
               }`}
-              onClick={() => toggleMenu(item.id)}
+              onClick={() => handleMenuClick(item)}
+              // onClick={() => toggleMenu(item.id)}
             >
               <div className="h-[15px] w-[15px] mr-3">
                 <img
                   className={`h-[12px] w-[12px] ${
-                    expanded[item.id] ? "filter brightness-0 invert" : ""
+                    selectedMenu?.id === item.id
+                      ? "filter brightness-0 invert"
+                      : ""
                   }`}
                   src={item.icon}
                 />
               </div>
               <span
                 className={`text-[14px] ${
-                  expanded[item.id] ? "text-white" : "text-[#284E93]"
+                  selectedMenu?.id === item.id ? "text-white" : "text-[#284E93]"
                 }`}
               >
                 {item.title}
               </span>
 
-              {expanded[item.id] && (
+              {selectedMenu?.id === item.id && (
                 <div className="flex ml-auto">
                   {/* Plus Icon */}
                   <button className="flex items-center justify-center w-4 h-4">
@@ -150,10 +152,10 @@ const Drawer = () => {
               )}
 
               {/* <span className="text-[#284E93] ml-auto">
-                {expanded[item.id] ? (
+                {  selectedMenu?.id === item.id ? (
                   <ChevronDownIcon
                     className={`h-5 w-5 ${
-                      expanded[item.id] ? "text-white" : "text-[#284E93]"
+                        selectedMenu?.id === item.id ? "text-white" : "text-[#284E93]"
                     }`}
                   />
                 ) : (
@@ -163,14 +165,14 @@ const Drawer = () => {
             </div>
 
             {/* Sub-Menu Items */}
-            {/* {expanded[item.id] && (
+            {/* {  selectedMenu?.id === item.id && (
               <ul className="ml-7 mt-2 relative">
                 <div className="absolute left-[-12px] top-0 h-full border-l border-white"></div>
                 {item.subItems.map((subItem, index) => (
                   <li
                     key={index}
                     className={`cursor-pointer p-1 text-[14px] ${
-                      expanded[item.id]
+                        selectedMenu?.id === item.id
                         ? "text-white"
                         : "text-gray-600 hover:text-blue-500"
                     }`}
