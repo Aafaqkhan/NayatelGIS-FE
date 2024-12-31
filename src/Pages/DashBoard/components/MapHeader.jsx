@@ -1,7 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
+import profileApi from "../../../services/api/profileInfo";
 
 const MapHeader = ({ username, email }) => {
+  console.log("useeeer emaaill in map header ::", email);
+  console.log("useeeer namee in map header ::", username);
+
   const [activeTab, setActiveTab] = useState("View");
 
   const tabs = ["View", "Add", "Tools", "Help"];
