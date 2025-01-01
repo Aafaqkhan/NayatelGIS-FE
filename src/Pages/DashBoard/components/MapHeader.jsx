@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
-import profileApi from "../../../services/api/profileInfo";
+import SettingsModal from "./SettingsModal";
+import { useDispatch } from "react-redux";
+import { openModal } from "../../../store/settingsSlice";
 
 const MapHeader = ({ username, email }) => {
   console.log("useeeer emaaill in map header ::", email);
@@ -13,6 +15,8 @@ const MapHeader = ({ username, email }) => {
   const [activeIcon, setActiveIcon] = useState(null);
 
   const icons = ["mask_group", "map_pin", "ruler", "sun"];
+
+  const dispatch = useDispatch();
 
   return (
     <div className="mt-3 ml-4 mr-4">
@@ -39,7 +43,10 @@ const MapHeader = ({ username, email }) => {
           </div>
 
           {/* User Profile */}
-          <div className="cursor-pointer flex items-center space-x-2">
+          <div
+            onClick={() => dispatch(openModal())}
+            className="cursor-pointer flex items-center space-x-2"
+          >
             <img
               src="src/assets/icons/dp.png"
               alt="User Profile"

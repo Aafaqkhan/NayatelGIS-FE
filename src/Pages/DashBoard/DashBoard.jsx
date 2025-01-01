@@ -4,8 +4,13 @@ import Drawer from "./components/Drawer";
 import MapHeader from "./components/MapHeader";
 import { useLocation } from "react-router-dom";
 import profileApi from "../../services/api/profileInfo";
+import SettingsModal from "./components/SettingsModal";
+import { setProfileInfo } from "../../store/profileSlice";
+import { useDispatch } from "react-redux";
 
 function DashBoard() {
+  const dispatch = useDispatch();
+
   const location = useLocation();
   const userId = location.state?.userId || null;
 
@@ -22,6 +27,14 @@ function DashBoard() {
         setUsername(response.username);
         setEmail(response.email);
         setCityName(response.city.name);
+
+        dispatch(
+          setProfileInfo({
+            username: response.username,
+            email: response.email,
+            designation: response.designation,
+          })
+        );
       } else {
         console.error("City data not found in API response");
       }
@@ -41,6 +54,7 @@ function DashBoard() {
         <Drawer />
         <MapboxMap cityName={cityName} />
       </div>
+      <SettingsModal />
     </div>
   );
 }

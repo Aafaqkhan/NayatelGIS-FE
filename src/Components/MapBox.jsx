@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import Map, { Marker, Popup } from "react-map-gl";
+import Map, { NavigationControl, Marker, Popup } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useSelector, useDispatch } from "react-redux";
 import profileApi from "../services/api/profileInfo";
@@ -49,10 +49,7 @@ const MapboxMap = ({ cityName }) => {
   );
 
   useEffect(() => {
-    // Fetch coordinates when the city name changes
-    if (cityName || "Karachi") {
-      getCityCoordinates(cityName);
-    }
+    getCityCoordinates(cityName || "Karachi");
   }, [cityName, getCityCoordinates]);
 
   const [viewport, setViewport] = useState({
@@ -350,6 +347,8 @@ const MapboxMap = ({ cityName }) => {
         onMove={({ viewState }) => handleMove(viewState)}
         mapboxAccessToken={mapboxToken}
       >
+        {/* <NavigationControl position="top-left" /> */}
+
         {/* Example Marker */}
         {/* <Marker latitude={33.6995} longitude={73.0363}>
           <div

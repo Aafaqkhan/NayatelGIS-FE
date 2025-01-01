@@ -111,7 +111,7 @@ const LoginForm = () => {
 
         <div className="space-y-4">
           <InputField
-            label="Name"
+            label="Username"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name"
