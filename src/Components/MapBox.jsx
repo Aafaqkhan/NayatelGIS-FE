@@ -1,13 +1,16 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import Map, { NavigationControl, Marker, Popup } from "react-map-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useSelector, useDispatch } from "react-redux";
 import profileApi from "../services/api/profileInfo";
 import { deselectMenu } from "../store/menuSlice";
+import mapboxgl from "mapbox-gl";
 
 const MapboxMap = ({ cityName }) => {
   const dispatch = useDispatch();
   const selectedMenu = useSelector((state) => state.menu.selectedMenu);
+
+  const citySelected = useSelector((state) => state.map.cityName);
 
   const [selectedBase, setSelectedBase] = useState("Base");
   const [selectedPublic1, setSelectedPublic1] = useState("");
@@ -33,11 +36,14 @@ const MapboxMap = ({ cityName }) => {
         if (data.features && data.features.length > 0) {
           const { center } = data.features[0];
           const [longitude, latitude] = center;
-          setViewport((prevViewport) => ({
-            ...prevViewport,
-            latitude,
-            longitude,
-          }));
+          // setViewport((prevViewport) => ({
+          //   ...prevViewport,
+          //   latitude,
+          //   longitude,
+          // }));
+          if (mapRef.current) {
+            mapRef.current.setCenter([longitude, latitude]);
+          }
         } else {
           console.error("City not found!");
         }
@@ -49,27 +55,190 @@ const MapboxMap = ({ cityName }) => {
   );
 
   useEffect(() => {
-    getCityCoordinates(cityName || "Karachi");
-  }, [cityName, getCityCoordinates]);
+    getCityCoordinates(citySelected || cityName || "Karachi");
+  }, [citySelected, cityName, getCityCoordinates]);
 
-  const [viewport, setViewport] = useState({
-    latitude: 33.6995,
-    longitude: 73.0363,
-    zoom: 10,
-  });
+  // const [viewport, setViewport] = useState({
+  //   latitude: 33.6995,
+  //   longitude: 73.0363,
+  //   zoom: 10,
+  // });
 
-  const handleMove = useCallback((newViewport) => {
-    setViewport((prevViewport) => {
-      if (
-        prevViewport.latitude !== newViewport.latitude ||
-        prevViewport.longitude !== newViewport.longitude ||
-        prevViewport.zoom !== newViewport.zoom
-      ) {
-        return newViewport;
-      }
-      return prevViewport;
+  // const handleMove = useCallback((newViewport) => {
+  //   setViewport((prevViewport) => {
+  //     if (
+  //       prevViewport.latitude !== newViewport.latitude ||
+  //       prevViewport.longitude !== newViewport.longitude ||
+  //       prevViewport.zoom !== newViewport.zoom
+  //     ) {
+  //       return newViewport;
+  //     }
+  //     return prevViewport;
+  //   });
+  // }, []);
+
+  // 3d buiuldings code
+
+  const mapContainerRef = useRef();
+  const mapRef = useRef();
+  const [is3DEnabled, setIs3DEnabled] = useState(false);
+  const [isSatelliteEnabled, setIsSatelliteEnabled] = useState(false);
+  const [pitch, setPitch] = useState(0);
+
+  useEffect(() => {
+    // Add your Mapbox access token
+    mapboxgl.accessToken =
+      "pk.eyJ1IjoiYmFzaXRyaWF6MzgxNSIsImEiOiJjbTRxcXB2aWoxNHBjMmpvdDFyYWNlNmRnIn0.-4GiskmuJLZ62VxH0cDTYw";
+
+    // Initialize the Mapbox map
+    mapRef.current = new mapboxgl.Map({
+      style: "mapbox://styles/mapbox/streets-v11",
+      // style: "mapbox://styles/mapbox/satellite-streets-v12",
+
+      // center: [73.0479, 33.6844],
+      center: [74.3587, 31.5204],
+      zoom: 15.5,
+      pitch: 0,
+      bearing: -17.6,
+      container: mapContainerRef.current,
+      antialias: true,
     });
+
+    mapRef.current.addControl(new mapboxgl.NavigationControl());
+
+    // Add 3D buildings layer
+    mapRef.current.on("style.load", () => {
+      const layers = mapRef.current.getStyle().layers;
+      const labelLayerId = layers.find(
+        (layer) => layer.type === "symbol" && layer.layout["text-field"]
+      ).id;
+
+      mapRef.current.addLayer(
+        {
+          id: "add-3d-buildings",
+          source: "composite",
+          "source-layer": "building",
+          filter: ["==", "extrude", "true"],
+          type: "fill-extrusion",
+          minzoom: 15,
+          paint: {
+            "fill-extrusion-color": "#aaa",
+            "fill-extrusion-height": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              15,
+              0,
+              15.05,
+              ["get", "height"],
+            ],
+            "fill-extrusion-base": [
+              "interpolate",
+              ["linear"],
+              ["zoom"],
+              15,
+              0,
+              15.05,
+              ["get", "min_height"],
+            ],
+            "fill-extrusion-opacity": 0.6,
+          },
+          layout: {
+            visibility: "none", // Disable 3D initially
+          },
+        },
+
+        labelLayerId
+      );
+    });
+
+    // const searchBox = new MapboxSearchBox({
+    //   accessToken: mapboxgl.accessToken,
+    //   mapboxgl,
+    //   marker: true, // Automatically add a marker for the selected location
+    //   options: {
+    //     types: ["address", "poi"],
+    //     proximity: [74.3587, 31.5204], // Lahore coordinates for proximity
+    //   },
+    // });
+
+    // // Add the search box control to the map
+    // mapRef.current.addControl(searchBox);
+
+    return () => mapRef.current.remove();
   }, []);
+
+  const toggle3DView = () => {
+    if (mapRef.current) {
+      const layerId = "add-3d-buildings";
+      if (is3DEnabled) {
+        mapRef.current.setLayoutProperty(layerId, "visibility", "none");
+      } else {
+        mapRef.current.setLayoutProperty(layerId, "visibility", "visible");
+      }
+      setIs3DEnabled(!is3DEnabled);
+    }
+  };
+
+  const toggleSatelliteView = () => {
+    if (mapRef.current) {
+      if (isSatelliteEnabled) {
+        mapRef.current.setStyle("mapbox://styles/mapbox/streets-v11");
+      } else {
+        mapRef.current.setStyle("mapbox://styles/mapbox/satellite-v9");
+        // mapRef.current.setStyle(
+        //   " mapbox://styles/mapbox/satellite-streets-v12"
+        // );
+      }
+      setIsSatelliteEnabled(!isSatelliteEnabled);
+    }
+  };
+
+  const togglePitch = () => {
+    const newPitch = pitch === 0 ? 70 : 0;
+    setPitch(newPitch);
+    mapRef.current.setPitch(newPitch);
+  };
+
+  const toggleTerrain = () => {
+    if (mapRef.current) {
+      console.log("Map reference exists. Checking for terrain source...");
+
+      const terrainSource = mapRef.current.getSource("mapbox-dem");
+
+      if (terrainSource) {
+        console.log("Terrain source found. Disabling terrain...");
+        // Disable terrain and remove the source
+        mapRef.current.setTerrain(null); // Disable terrain
+        console.log("Terrain disabled.");
+
+        mapRef.current.removeSource("mapbox-dem"); // Remove the source
+        console.log("Terrain source removed.");
+      } else {
+        console.log("Terrain source not found. Adding terrain source...");
+        // Add the terrain source and enable it
+        try {
+          mapRef.current.addSource("mapbox-dem", {
+            type: "raster-dem",
+            url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+            tileSize: 512,
+            maxzoom: 14,
+          });
+          console.log("Terrain source added successfully.");
+
+          mapRef.current.setTerrain({
+            source: "mapbox-dem",
+            exaggeration: 1.5,
+          });
+          console.log("Terrain enabled with exaggeration: 1.5");
+        } catch (error) {
+          console.error("Error adding terrain source:", error);
+        }
+      }
+    } else {
+      console.error("Map reference is null or undefined.");
+    }
+  };
 
   return (
     <div className="relative w-full h-screen">
@@ -191,9 +360,9 @@ const MapboxMap = ({ cityName }) => {
         </div>
       )}
 
-      {/* side button */}
-      <div className="flex flex-col absolute top-5 right-5 ">
-        <div className="cursor-pointer flex items-center rounded-t-md z-10 p-2 bg-white border border-gray-200">
+      {/* side buttons */}
+      <div className="flex flex-col absolute top-28 right-2">
+        {/* <div className="cursor-pointer flex items-center rounded-t-md z-10 p-2 bg-white border border-gray-200">
           <img
             className="h-3"
             src="src/assets/icons/plus.png"
@@ -213,19 +382,29 @@ const MapboxMap = ({ cityName }) => {
             src="src/assets/icons/arrows.png"
             alt="plus Icon"
           />
-        </div>
+        </div> */}
 
-        <div className="mb-1 mt-1 cursor-pointer flex items-center rounded-md z-10 p-2 border border-gray-200 bg-white">
+        <div
+          onClick={toggle3DView}
+          className="mb-1 mt-1 cursor-pointer flex items-center rounded-md z-10 p-2 border border-gray-200 bg-white"
+        >
           <img
-            className="h-4"
+            className="h-4 filter grayscale invert-0"
             src="src/assets/icons/building.png"
             alt="plus Icon"
           />
         </div>
-        <div className="mb-1 cursor-pointer flex items-center rounded-md z-10 p-2 bg-white border border-gray-200">
+        <div
+          onClick={toggleSatelliteView}
+          className="filter grayscale invert-0 mb-1 cursor-pointer flex items-center rounded-md z-10 p-2 bg-white border border-gray-200"
+        >
           <img className="h-4" src="src/assets/icons/map.png" alt="plus Icon" />
         </div>
-        <div className="mb-1 cursor-pointer flex items-center rounded-md z-10 p-2 bg-white border border-gray-200">
+        <div
+          // onClick={toggleTerrain}
+          onClick={togglePitch}
+          className="filter grayscale invert-0 mb-1 cursor-pointer flex items-center rounded-md z-10 p-2 bg-white border border-gray-200"
+        >
           <img
             className="h-4"
             src="src/assets/icons/mount.png"
@@ -339,18 +518,24 @@ const MapboxMap = ({ cityName }) => {
         </div>
       )}
 
+      {/* 3d buildings code */}
+
+      <div className="flex flex-col items-center justify-center h-screen">
+        <div ref={mapContainerRef} className="w-full h-full"></div>
+      </div>
+
       {/* Map component */}
-      <Map
+      {/* <Map
         {...viewport}
         style={{ width: "100%", height: "80%" }}
         mapStyle="mapbox://styles/mapbox/streets-v11"
         onMove={({ viewState }) => handleMove(viewState)}
         mapboxAccessToken={mapboxToken}
-      >
-        {/* <NavigationControl position="top-left" /> */}
+      > */}
+      {/* <NavigationControl position="top-left" /> */}
 
-        {/* Example Marker */}
-        {/* <Marker latitude={33.6995} longitude={73.0363}>
+      {/* Example Marker */}
+      {/* <Marker latitude={33.6995} longitude={73.0363}>
           <div
             style={{
               backgroundColor: "red",
@@ -360,7 +545,7 @@ const MapboxMap = ({ cityName }) => {
             }}
           />
         </Marker> */}
-      </Map>
+      {/* </Map> */}
     </div>
   );
 };
