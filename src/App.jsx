@@ -4,6 +4,7 @@ import DashBoard from "./Pages/DashBoard/DashBoard";
 import LoginPage from "./Pages/LoginScreen/LoginPage";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
+import MapboxExample from "./Components/MapBox3D_build";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/dashboard" element={<DashBoard />} />
+          {/* <Route path="/dashboard" element={<MapboxExample />} /> */}
         </Routes>
       </Router>
     </Provider>

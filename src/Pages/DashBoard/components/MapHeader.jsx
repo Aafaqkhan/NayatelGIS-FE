@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import SearchBar from "./SearchBar";
-import profileApi from "../../../services/api/profileInfo";
+import SettingsModal from "./SettingsModal";
+import { useDispatch } from "react-redux";
+import { openModal } from "../../../store/settingsSlice";
+import { useNavigate } from "react-router-dom";
 
 const MapHeader = ({ username, email }) => {
   console.log("useeeer emaaill in map header ::", email);
@@ -13,6 +16,21 @@ const MapHeader = ({ username, email }) => {
   const [activeIcon, setActiveIcon] = useState(null);
 
   const icons = ["mask_group", "map_pin", "ruler", "sun"];
+
+  const [isProfileClicked, setIsProfileClicked] = useState(false);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const onProfileClick = () => {
+    setIsProfileClicked(!isProfileClicked);
+    dispatch(openModal());
+  };
+
+  const onLogoutClick = () => {
+    setIsProfileClicked(false);
+    navigate("/");
+  };
 
   return (
     <div className="mt-3 ml-4 mr-4">
@@ -39,7 +57,11 @@ const MapHeader = ({ username, email }) => {
           </div>
 
           {/* User Profile */}
-          <div className="cursor-pointer flex items-center space-x-2">
+          <div
+            // onClick={() => dispatch(openModal())}
+            onClick={() => setIsProfileClicked(!isProfileClicked)}
+            className="cursor-pointer flex items-center space-x-2"
+          >
             <img
               src="src/assets/icons/dp.png"
               alt="User Profile"
@@ -56,6 +78,32 @@ const MapHeader = ({ username, email }) => {
           </div>
         </div>
       </header>
+
+      {isProfileClicked && (
+        <div className="absolute right-4 top-16 z-10 w-[171px] bg-white border border-gray-300 rounded-lg">
+          <div className="flex m-2 cursor-pointer" onClick={onProfileClick}>
+            <img
+              className="h-5 pr-2"
+              src="src/assets/icons/settings.png"
+              alt="Google Map Icon"
+            />
+            <p className="text-[#284E93]">Settings</p>
+          </div>
+          <div className="h-[1px] bg-gray-300"> </div>
+          <div
+            className="flex m-2 cursor-pointer"
+            // onClick={console.log("logout clickeddd :: ")}
+            onClick={onLogoutClick}
+          >
+            <img
+              className="h-5 pr-2"
+              src="src/assets/icons/logout.png"
+              alt="Google Map Icon"
+            />
+            <p className="text-[#284E93]">Log out</p>
+          </div>
+        </div>
+      )}
 
       {/* Navigation Tabs */}
       <nav className="flex space-x-1">
